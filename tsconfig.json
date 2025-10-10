@@ -17,7 +17,16 @@
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
-    "strictNullChecks": false,
+  "strictNullChecks": false,
+  "typeRoots": ["./node_modules/@types"],
   },
-  "include": ["src", "__tests__"]
+  "include": [
+    "src",
+    "__tests__",
+    "gateway",
+    "services/catalog",
+    "services/reviews",
+    "services/users",
+    "services/mal-integration"
+  ]
 }
