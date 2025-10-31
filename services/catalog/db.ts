@@ -1,9 +1,9 @@
-import { Pool } from "pg";
+import { Pool } from 'pg';
 
 export const pool = new Pool({
-  user: "postgres", // Cambia por tu usuario
-  host: "localhost",
-  database: "anime_reviews",
-  password: "postgres", // Cambia por tu contraseña
-  port: 5432,
+  user: process.env.DB_USER ?? 'postgres',
+  host: process.env.DB_HOST ?? 'localhost',
+  database: process.env.DB_NAME ?? 'anime_reviews',
+  password: process.env.DB_PASSWORD ?? 'admin',
+  port: Number(process.env.DB_PORT ?? 5432),
 });

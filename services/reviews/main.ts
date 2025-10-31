@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-app.get("/reviews", (req: Request, res: Response) => {
+app.get("/reviews", (_req: Request, res: Response) => {
   res.json({ message: "Servicio de opiniones activo" });
 });
 
