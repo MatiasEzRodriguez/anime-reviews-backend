@@ -1,0 +1,95 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-admin}
+      POSTGRES_DB: ${DB_NAME:-anime_reviews}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  users:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE=users
+    environment:
+      SERVICE: users
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT:-5432}
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret}
+    depends_on:
+      - postgres
+    ports:
+      - "3003:3003"
+
+  reviews:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE=reviews
+    environment:
+      SERVICE: reviews
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT:-5432}
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret}
+    depends_on:
+      - postgres
+      - users
+    ports:
+      - "3002:3002"
+
+  catalog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE=catalog
+    environment:
+      SERVICE: catalog
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT:-5432}
+    depends_on:
+      - postgres
+      - mal
+    ports:
+      - "3001:3001"
+
+  mal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE=mal-integration
+    environment:
+      SERVICE: mal-integration
+    ports:
+      - "3004:3004"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE=gateway
+    environment:
+      SERVICE: gateway
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

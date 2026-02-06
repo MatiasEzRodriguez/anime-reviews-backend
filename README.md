@@ -119,3 +119,143 @@ Licensed under the APLv2. See the [LICENSE](https://github.com/jsynowiec/node-ty
 [ts47-esm]: https://devblogs.microsoft.com/typescript/announcing-typescript-4-7/#esm-nodejs
 [editorconfig]: https://editorconfig.org
 [vitest]: https://vitest.dev
+
+## Anime Reviews — Microservicios (este repositorio)
+
+Este repositorio contiene un conjunto de microservicios en Node.js + TypeScript para un backend de reseñas de anime. Los servicios principales son:
+
+- `gateway` (puerta de entrada, esqueleto)
+- `services/mal-integration` (proxy a la API de Jikan / MyAnimeList)
+- `services/catalog` (importa y persiste animes en Postgres)
+- `services/users` (registro, login y JWT)
+- `services/reviews` (CRUD de reseñas, relacionado con users y animes)
+
+### Variables de entorno necesarias
+Configurar estas variables antes de arrancar los servicios (puedes usar PowerShell, variables de sistema o un .env con tu gestor preferido):
+
+- `DB_USER` - usuario de PostgreSQL (por defecto `postgres`)
+- `DB_PASSWORD` - contraseña de PostgreSQL (por defecto `admin`)
+- `DB_HOST` - host de la DB (por defecto `localhost`)
+- `DB_NAME` - nombre de la BD (por defecto `anime_reviews`)
+- `DB_PORT` - puerto de Postgres (por defecto `5432`)
+- `JWT_SECRET` - secreto para firmar JWT (cambiar en producción)
+- `PORT` - puerto para cada servicio (cada servicio puede usar su propia variable o el script npm asigna puertos por defecto)
+
+Ejemplo PowerShell (temporal para la sesión):
+
+```powershell
+$env:DB_USER = 'postgres'; $env:DB_PASSWORD = 'admin'; $env:DB_HOST = 'localhost'; $env:DB_NAME = 'anime_reviews'; $env:DB_PORT = '5432'; $env:JWT_SECRET = 'cambiar_esto'
+```
+
+### Endpoints principales
+
+Usuarios (`services/users` - puerto por defecto 3003)
+- POST /register  { username, email, password } -> crea usuario
+- POST /login     { username | email, password } -> devuelve { token }
+- GET  /me        (header Authorization: Bearer <token>) -> devuelve { user }
+
+Reviews (`services/reviews` - puerto por defecto 3002)
+- POST   /reviews           (auth) { anime_id, rating, content } -> crea reseña
+- GET    /reviews           -> lista reseñas (opcional query ?anime_id=123)
+- GET    /reviews/:id       -> obtiene una reseña
+- PUT    /reviews/:id       (auth, owner) { rating, content } -> actualiza
+- DELETE /reviews/:id       (auth, owner) -> borra
+
+Catalog (`services/catalog` - puerto por defecto 3001)
+- POST /import?q=...  -> importa resultados desde MAL/Jikan y persiste en la tabla `animes`
+- GET  /animes         -> lista animes guardados
+
+MAL integration (`services/mal-integration` - puerto por defecto 3004)
+- GET /search?q=...    -> proxy a `https://api.jikan.moe/v4/anime?q=...`
+
+### SQL / Creación de tablas
+Ejecutar en `anime_reviews` (pgAdmin o psql) los scripts provistos:
+
+- `services/catalog/db.sql` — crea la tabla `animes` usada por el catálogo.
+- `services/reviews/db.sql` — crea la tabla `reviews` usada por el servicio de reseñas.
+
+Por ejemplo, en psql:
+
+```sql
+CREATE DATABASE anime_reviews;
+-- Conectarse a anime_reviews y ejecutar:
+\i services/catalog/db.sql;
+\i services/reviews/db.sql;
+```
+
+Nota: los servicios `users` y `catalog` también crean sus tablas automáticamente si no existen (`CREATE TABLE IF NOT EXISTS`), por lo que puedes arrancarlos y dejar que hagan el bootstrap.
+
+### Ejemplos rápidos (PowerShell)
+
+Registrar usuario:
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3003/register' -Method POST -ContentType 'application/json' -Body (ConvertTo-Json @{username='ci_test'; email='test+ci@example.com'; password='pass123'})
+```
+
+Login (username o email):
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3003/login' -Method POST -ContentType 'application/json' -Body (ConvertTo-Json @{email='test+ci@example.com'; password='pass123'})
+```
+
+Obtener datos del usuario autenticado (usar token retornado):
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3003/me' -Method GET -Headers @{ Authorization = 'Bearer <AQUI_TU_TOKEN>' }
+```
+
+Crear una review (autenticado):
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3002/reviews' -Method POST -ContentType 'application/json' -Headers @{ Authorization = 'Bearer <AQUI_TU_TOKEN>' } -Body (ConvertTo-Json @{anime_id=123; rating=8; content='Me gustó mucho'})
+```
+
+### Scripts npm útiles
+- `npm run build` - compila TypeScript
+- `npm run start:gateway|start:catalog|start:reviews|start:users|start:mal` - arranca cada servicio (usa la salida compilada en `build/`)
+- `npm test` - ejecuta la suite de tests (Vitest)
+
+### Tests
+Hay tests unitarios con Vitest en `__tests__/unit/`. Los tests actuales mockean las consultas a la base de datos para ser deterministas y rápidos. Ejecutar:
+
+```powershell
+npm test
+```
+
+### Consejos y siguientes pasos
+- Cambiar `JWT_SECRET` antes de desplegar en producción.
+- Considerar separar credenciales por servicio (si requieren diferentes DB/users).
+- Añadir validaciones adicionales (p. ej. rating 1-10) y protección (rate limiting, CORS según gateway).
+
+### Docker & Compose (despliegue local)
+
+Se provee un `Dockerfile` genérico y `docker-compose.yml` para arranque local de la plataforma (incluye Postgres). El Dockerfile compila el proyecto y arranca el servicio indicado por la variable de entorno `SERVICE`.
+
+Ejemplo (PowerShell) — arrancar Postgres + usuarios + reviews:
+
+```powershell
+$env:DB_USER='postgres'; $env:DB_PASSWORD='admin'; $env:DB_NAME='anime_reviews'; $env:DB_PORT='5432'; $env:JWT_SECRET='cambiar_esto'
+docker compose up --build users reviews postgres
+```
+
+Para levantar todos los servicios:
+
+```powershell
+docker compose up --build
+```
+
+Logs útiles:
+
+```powershell
+docker compose logs -f users
+```
+
+Si preferís ejecutar servicios individualmente con Dockerfile, exportá `SERVICE` y ejecutá la imagen:
+
+```powershell
+docker build -t anime-reviews .
+docker run -e SERVICE=users -e DB_HOST=host.docker.internal -e DB_USER=postgres -e DB_PASSWORD=admin -p 3003:3003 anime-reviews
+```
+
+### CI (GitHub Actions)
+
+Se añadió un workflow de CI en `.github/workflows/ci.yml` que ejecuta lint, build y tests en cada push/pull request hacia `main`.
+
+

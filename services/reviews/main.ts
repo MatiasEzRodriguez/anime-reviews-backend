@@ -1,12 +1,17 @@
-import express, { Request, Response } from "express";
+import app, { ensureReviewsTable } from "./app.js";
 
-const app = express();
 const PORT = process.env.PORT || 3002;
 
-app.get("/reviews", (_req: Request, res: Response) => {
-  res.json({ message: "Servicio de opiniones activo" });
-});
+(async () => {
+  try {
+    await ensureReviewsTable();
+    app.listen(PORT, () => {
+      console.log(`Servicio Opiniones escuchando en puerto ${PORT}`);
+    });
+  } catch (err) {
+    console.error("No se pudo inicializar el servicio de opiniones:", err);
+    process.exit(1);
+  }
+})();
 
-app.listen(PORT, () => {
-  console.log(`Servicio Opiniones escuchando en puerto ${PORT}`);
-});
+export default app;

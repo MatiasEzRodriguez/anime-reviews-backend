@@ -1,0 +1,35 @@
+services:
+  users:
+    entrypoint: ["npm","run","dev:users"]
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development
+
+  reviews:
+    entrypoint: ["npm","run","dev:reviews"]
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development
+
+  catalog:
+    entrypoint: ["npm","run","dev:catalog"]
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development
+
+  mal:
+    entrypoint: ["npm","run","dev:mal"]
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development
+
+  gateway:
+    entrypoint: ["npm","run","dev:gateway"]
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development

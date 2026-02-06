@@ -23,9 +23,16 @@
     "ts-api-utils": "~2.0",
     "typescript": "~5.7",
     "typescript-eslint": "~8.19",
-    "vitest": "~2.1"
+    "vitest": "~2.1",
+    "supertest": "^6.3.3",
+    "ts-node-dev": "^2.0.0"
   },
   "scripts": {
+    "dev:users": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/users/main.ts",
+    "dev:reviews": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/reviews/main.ts",
+    "dev:catalog": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/catalog/main.ts",
+    "dev:mal": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/mal-integration/main.ts",
+    "dev:gateway": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll gateway/main.ts",
     "start": "node build/src/main.js",
     "start:gateway": "node build/gateway/main.js",
     "start:catalog": "node build/services/catalog/main.js",
@@ -44,6 +51,7 @@
     "prettier:check": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
     "test:watch": "vitest unit"
   },
+  
   "author": "Jakub Synowiec <jsynowiec@users.noreply.github.com>",
   "license": "Apache-2.0",
   "dependencies": {
