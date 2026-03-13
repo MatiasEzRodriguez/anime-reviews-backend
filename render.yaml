@@ -8,16 +8,16 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_HOST
-        value: your-neon-host.neon.tech
+        value: ep-fragrant-band-adjkjx8f-pooler.c-2.us-east-1.aws.neon.tech
       - key: DB_USER
-        value: your-neon-user
+        value: neondb_owner
       - key: DB_PASSWORD
-        value: your-neon-password
+        value: npg_8HofsACO9glY
       - key: DB_NAME
-        value: anime_reviews
+        value: neondb
       - key: DB_PORT
         value: "5432"
       - key: JWT_SECRET
-        value: no-porque-en-fk-yo-tenia-el-mago-armado
+        value: 988be4ec823d7c96b0772a1d356ccb583593eebee8e4ee0ca451f6d096f1daf0
       - key: PORT
         value: "3000"
