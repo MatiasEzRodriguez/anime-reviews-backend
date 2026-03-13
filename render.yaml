@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: anime-reviews-api
+    env: node
+    buildCommand: npm run build
+    startCommand: npm run start:production
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: your-neon-host.neon.tech
+      - key: DB_USER
+        value: your-neon-user
+      - key: DB_PASSWORD
+        value: your-neon-password
+      - key: DB_NAME
+        value: anime_reviews
+      - key: DB_PORT
+        value: "5432"
+      - key: JWT_SECRET
+        value: no-porque-en-fk-yo-tenia-el-mago-armado
+      - key: PORT
+        value: "3000"

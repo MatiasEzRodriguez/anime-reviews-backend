@@ -20,20 +20,21 @@
     "globals": "~15.14",
     "prettier": "~3.4",
     "rimraf": "~6.0",
+    "supertest": "^6.3.3",
     "ts-api-utils": "~2.0",
+    "ts-node-dev": "^2.0.0",
     "typescript": "~5.7",
     "typescript-eslint": "~8.19",
-    "vitest": "~2.1",
-    "supertest": "^6.3.3",
-    "ts-node-dev": "^2.0.0"
+    "vitest": "~2.1"
   },
   "scripts": {
     "dev:users": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/users/main.ts",
     "dev:reviews": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/reviews/main.ts",
-    "dev:catalog": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/catalog/main.ts",
-    "dev:mal": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/mal-integration/main.ts",
+    "dev:catalog": "SERVICE=catalog ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/catalog/main.ts",
+    "dev:mal": "SERVICE=mal ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll services/mal-integration/main.ts",
     "dev:gateway": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --poll gateway/main.ts",
     "start": "node build/src/main.js",
+    "start:production": "node build/src/server.js",
     "start:gateway": "node build/gateway/main.js",
     "start:catalog": "node build/services/catalog/main.js",
     "start:reviews": "node build/services/reviews/main.js",
@@ -51,7 +52,6 @@
     "prettier:check": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
     "test:watch": "vitest unit"
   },
-  
   "author": "Jakub Synowiec <jsynowiec@users.noreply.github.com>",
   "license": "Apache-2.0",
   "dependencies": {
@@ -62,6 +62,7 @@
     "@types/pg": "^8.15.5",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
+    "express-http-proxy": "^2.1.2",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
     "pg": "^8.16.3",
