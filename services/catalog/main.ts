@@ -7,6 +7,19 @@ app.use(express.json());
 const PORT = process.env.PORT || 3001;
 
 // Tipos para anime y respuesta de MAL Integration
+interface AnimeImages {
+  jpg?: {
+    image_url?: string;
+    small_image_url?: string;
+    large_image_url?: string;
+  };
+  webp?: {
+    image_url?: string;
+    small_image_url?: string;
+    large_image_url?: string;
+  };
+}
+
 interface Anime {
   mal_id: number;
   title: string;
@@ -14,6 +27,8 @@ interface Anime {
   episodes?: number | null;
   synopsis?: string | null;
   import_date?: string;
+  images?: AnimeImages;
+  image_url?: string;
   [key: string]: unknown;
 }
 

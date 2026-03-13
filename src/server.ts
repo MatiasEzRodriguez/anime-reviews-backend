@@ -15,7 +15,7 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
-  next()
+  return next()
 })
 
 // Montar cada servicio bajo su prefijo
