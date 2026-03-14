@@ -144,8 +144,8 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: "Error al consultar MyAnimeList" });
 });
 
-// Solo iniciar el servidor si se ejecuta directamente o está configurado para ello
-if (process.env.SERVICE === 'mal' || import.meta.main) {
+// Solo iniciar el servidor si está configurado para ello
+if (process.env.SERVICE === 'mal') {
   app.listen(PORT, () => {
     console.log(`Servicio MAL Integration escuchando en puerto ${PORT}`);
   });

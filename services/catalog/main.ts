@@ -412,7 +412,7 @@ app.get("/animes/recent-reviewed", async (req: Request, res: Response) => {
 (async () => {
   try {
     await ensureSchema();
-    if (process.env.SERVICE === 'catalog' || import.meta.main) {
+    if (process.env.SERVICE === 'catalog') {
       app.listen(PORT, () => {
         console.log(`Servicio Catálogo escuchando en puerto ${PORT}`);
       });
