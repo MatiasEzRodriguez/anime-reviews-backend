@@ -7,17 +7,5 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_HOST
-        value: ep-fragrant-band-adjkjx8f-pooler.c-2.us-east-1.aws.neon.tech
-      - key: DB_USER
-        value: neondb_owner
-      - key: DB_PASSWORD
-        value: npg_8HofsACO9glY
-      - key: DB_NAME
-        value: neondb
-      - key: DB_PORT
-        value: "5432"
-      - key: JWT_SECRET
-        value: 988be4ec823d7c96b0772a1d356ccb583593eebee8e4ee0ca451f6d096f1daf0
       - key: PORT
         value: "3000"
