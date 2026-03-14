@@ -22,7 +22,6 @@
   },
   "include": [
     "src",
-    "__tests__",
     "gateway",
     "services/catalog",
     "services/reviews",
