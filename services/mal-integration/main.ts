@@ -145,7 +145,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // Solo iniciar el servidor si se ejecuta directamente o está configurado para ello
-if (process.env.SERVICE === 'mal' || require.main === module) {
+if (process.env.SERVICE === 'mal' || import.meta.main) {
   app.listen(PORT, () => {
     console.log(`Servicio MAL Integration escuchando en puerto ${PORT}`);
   });
