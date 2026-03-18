@@ -1,7 +1,7 @@
 import express from 'express'
-import usersApp from '../services/users/app.js'
-import reviewsApp from '../services/reviews/app.js'
-import catalogApp from '../services/catalog/main.js'
+import usersApp, { ensureUsersTable } from '../services/users/app.js'
+import reviewsApp, { ensureReviewsTable } from '../services/reviews/app.js'
+import catalogApp, { ensureAnimesTable } from '../services/catalog/app.js'
 import malApp from '../services/mal-integration/main.js'
 
 const app = express()
@@ -29,10 +29,22 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
-app.listen(PORT, () => {
-  console.log(`Servidor consolidado escuchando en puerto ${PORT}`)
-})
+// Initialize database tables before mounting apps and starting the server
+(async () => {
+  try {
+    await ensureUsersTable()
+    await ensureAnimesTable()
+    await ensureReviewsTable()
+
+    app.listen(PORT, () => {
+      console.log(`Servidor consolidado escuchando en puerto ${PORT}`)
+    })
+  } catch (err) {
+    console.error('Error initializing database tables:', err)
+    process.exit(1)
+  }
+})()
 
 export default app
