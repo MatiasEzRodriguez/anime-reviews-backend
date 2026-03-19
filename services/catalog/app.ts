@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 export async function ensureAnimesTable() {
-  const sql = `
+  const createSql = `
     CREATE TABLE IF NOT EXISTS animes (
       id SERIAL PRIMARY KEY,
       title VARCHAR(255) NOT NULL,
@@ -18,7 +18,12 @@ export async function ensureAnimesTable() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
-  await pool.query(sql);
+  await pool.query(createSql);
+
+  // ALTER TABLE no agrega columnas faltantes en tablas existentes,
+  // por eso se ejecutan separadamente después del CREATE TABLE
+  await pool.query(`ALTER TABLE animes ADD COLUMN IF NOT EXISTS rating DECIMAL(3,1)`);
+  await pool.query(`ALTER TABLE animes ADD COLUMN IF NOT EXISTS image_url TEXT`);
 }
 
 // Import anime data from MyAnimeList
@@ -89,11 +94,13 @@ app.get("/animes/top-reviewed", async (_req: Request, res: Response) => {
 // Recently reviewed animes (RUTA ESTÁTICA - va antes de :id)
 app.get("/animes/recent-reviewed", async (_req: Request, res: Response) => {
   try {
+    // DISTINCT ON es una extensión de PostgreSQL: retorna un anime por ID
+    // ordenados por r.created_at DESC (el review más reciente primero)
     const result = await pool.query(`
-      SELECT DISTINCT a.*
+      SELECT DISTINCT ON (a.id) a.*
       FROM animes a
       JOIN reviews r ON r.anime_id = a.id
-      ORDER BY r.created_at DESC
+      ORDER BY a.id, r.created_at DESC
       LIMIT 20
     `);
     return res.json({ animes: result.rows });

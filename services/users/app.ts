@@ -88,6 +88,11 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
     return;
   }
   const token = auth.split(" ")[1];
+  // Caso donde el token está vacío o solo contiene espacios (ej: después de logout)
+  if (!token) {
+    res.status(401).json({ error: "Token no proporcionado" });
+    return;
+  }
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { userId: number; username?: string };
     req.userId = payload.userId;
